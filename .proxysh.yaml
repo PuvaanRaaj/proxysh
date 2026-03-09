@@ -1,0 +1,19 @@
+version: 1
+
+daemon:
+  listen_port: 8443
+  log_file: ~/.config/proxysh/proxysh.log
+  pid_file: ~/.config/proxysh/proxysh.pid
+
+cert:
+  ca_dir: ~/.config/proxysh/ca
+  cert_dir: ~/.config/proxysh/certs
+  ca_common_name: "proxysh Local CA"
+  days_valid: 825
+
+domains:
+  # - domain: myapp.test
+  #   target: http://localhost:3000
+  # - domain: api.test
+  #   target: http://localhost:8080
+  #   log: full

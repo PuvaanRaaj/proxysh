@@ -3,7 +3,7 @@ set -e
 
 REPO="PuvaanRaaj/proxysh"
 BIN="proxysh"
-INSTALL_DIR="/usr/local/bin"
+INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 
 # Detect OS and architecture
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -49,9 +49,17 @@ curl -sL "$URL" -o "${TMP}/${TARBALL}"
 echo "Extracting..."
 tar -xzf "${TMP}/${TARBALL}" -C "$TMP"
 
+mkdir -p "$INSTALL_DIR"
 echo "Installing to ${INSTALL_DIR}/${BIN}..."
-sudo mv "${TMP}/${BIN}" "${INSTALL_DIR}/${BIN}"
-sudo chmod +x "${INSTALL_DIR}/${BIN}"
+mv "${TMP}/${BIN}" "${INSTALL_DIR}/${BIN}"
+chmod +x "${INSTALL_DIR}/${BIN}"
+
+# Warn if INSTALL_DIR is not in PATH
+case ":$PATH:" in
+  *":$INSTALL_DIR:"*) ;;
+  *) echo "  Note: add ${INSTALL_DIR} to your PATH:"
+     echo "    echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.zshrc && source ~/.zshrc" ;;
+esac
 
 echo ""
 echo "proxysh installed successfully!"

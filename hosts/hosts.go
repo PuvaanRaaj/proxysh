@@ -8,25 +8,31 @@ import (
 	"strings"
 )
 
+func sudoRun(args ...string) ([]byte, error) {
+	cmd := exec.Command("sudo", args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	return cmd.Output()
+}
+
 const hostsFile = "/etc/hosts"
 const marker = "# proxysh"
 
-// AddEntry adds a 127.0.0.1 <domain> entry to /etc/hosts using sudo.
+// AddEntry adds a 127.0.0.1 <domain> entry to /etc/hosts.
+// Requires sudo because /etc/hosts is owned by root on macOS.
 func AddEntry(domain string) error {
 	if HasEntry(domain) {
 		return nil
 	}
 	entry := fmt.Sprintf("127.0.0.1 %s %s", domain, marker)
-	cmd := exec.Command("sudo", "sh", "-c",
-		fmt.Sprintf("echo %q >> %s", entry, hostsFile))
-	out, err := cmd.CombinedOutput()
+	out, err := sudoRun("sh", "-c", fmt.Sprintf("echo %q >> %s", entry, hostsFile))
 	if err != nil {
 		return fmt.Errorf("failed to add hosts entry: %w\n%s", err, out)
 	}
 	return nil
 }
 
-// RemoveEntry removes the proxysh-managed entry for domain from /etc/hosts using sudo.
+// RemoveEntry removes the proxysh-managed entry for domain from /etc/hosts.
 func RemoveEntry(domain string) error {
 	if !HasEntry(domain) {
 		return nil
@@ -48,10 +54,10 @@ func RemoveEntry(domain string) error {
 	}
 
 	newContent := strings.Join(lines, "\n") + "\n"
-	cmd := exec.Command("sudo", "sh", "-c",
-		fmt.Sprintf("cat > %s", hostsFile))
+	cmd := exec.Command("sudo", "sh", "-c", fmt.Sprintf("cat > %s", hostsFile))
 	cmd.Stdin = strings.NewReader(newContent)
-	out, err := cmd.CombinedOutput()
+	cmd.Stderr = os.Stderr
+	out, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("failed to update hosts: %w\n%s", err, out)
 	}

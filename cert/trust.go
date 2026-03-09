@@ -33,12 +33,16 @@ func InstallCA(caDir string) error {
 		// Try update-ca-certificates (Debian/Ubuntu)
 		dest := "/usr/local/share/ca-certificates/proxysh-ca.crt"
 		cp := exec.Command("sudo", "cp", caPath, dest)
-		if out, err := cp.CombinedOutput(); err != nil {
-			return fmt.Errorf("copy CA: %w\n%s", err, out)
+		cp.Stdin = os.Stdin
+		cp.Stderr = os.Stderr
+		if err := cp.Run(); err != nil {
+			return fmt.Errorf("copy CA: %w", err)
 		}
 		update := exec.Command("sudo", "update-ca-certificates")
-		if out, err := update.CombinedOutput(); err != nil {
-			return fmt.Errorf("update-ca-certificates: %w\n%s", err, out)
+		update.Stdin = os.Stdin
+		update.Stderr = os.Stderr
+		if err := update.Run(); err != nil {
+			return fmt.Errorf("update-ca-certificates: %w", err)
 		}
 		return nil
 	default:

@@ -2,24 +2,28 @@ package cert
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 )
 
-// InstallCA installs the CA certificate into the system trust store.
-// On macOS this requires one sudo prompt.
+// InstallCA installs the CA certificate into the user login keychain.
+// No sudo required — the login keychain is trusted by Safari, Chrome, and curl.
 func InstallCA(caDir string) error {
 	caPath := filepath.Join(caDir, "ca.crt")
 	switch runtime.GOOS {
 	case "darwin":
-		cmd := exec.Command("sudo", "security", "add-trusted-cert",
-			"-d",
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf("find home dir: %w", err)
+		}
+		loginKeychain := filepath.Join(home, "Library", "Keychains", "login.keychain-db")
+		cmd := exec.Command("security", "add-trusted-cert",
 			"-r", "trustRoot",
-			"-k", "/Library/Keychains/System.keychain",
+			"-k", loginKeychain,
 			caPath,
 		)
-		cmd.Stdin = nil
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("failed to install CA: %w\n%s", err, out)
@@ -47,7 +51,7 @@ func UninstallCA(caDir string) error {
 	caPath := filepath.Join(caDir, "ca.crt")
 	switch runtime.GOOS {
 	case "darwin":
-		cmd := exec.Command("sudo", "security", "remove-trusted-cert", "-d", caPath)
+		cmd := exec.Command("security", "remove-trusted-cert", caPath)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("failed to remove CA: %w\n%s", err, out)

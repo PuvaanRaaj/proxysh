@@ -5,10 +5,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 
 	"github.com/PuvaanRaaj/proxysh/cert"
 	"github.com/PuvaanRaaj/proxysh/config"
 	"github.com/PuvaanRaaj/proxysh/launchd"
+	"github.com/PuvaanRaaj/proxysh/pf"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +19,7 @@ var startCmd = &cobra.Command{
 	Short: "Start the proxysh daemon and install certificates",
 	Long: `Start sets up proxysh for the first time:
   1. Generates a local CA certificate
-  2. Installs the CA into your system trust store (requires sudo once)
+  2. Installs the CA into your login keychain (no sudo required)
   3. Installs a LaunchAgent so the proxy starts automatically on login
   4. Starts the daemon`,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -42,7 +44,7 @@ var startCmd = &cobra.Command{
 			fmt.Println("CA certificate already exists, skipping.")
 		}
 
-		// 2. Install CA into system trust (needs sudo)
+		// 2. Install CA into user login keychain (no sudo needed)
 		if !cert.IsCAInstalled(cfg.Cert.CADir) {
 			fmt.Println("Installing CA into system trust store (this may ask for your password)...")
 			if err := cert.InstallCA(cfg.Cert.CADir); err != nil {
@@ -92,6 +94,25 @@ var startCmd = &cobra.Command{
 		}
 		if err := launchd.Load(plistPath); err != nil {
 			return fmt.Errorf("load agent: %w", err)
+		}
+
+		// 6. Set up port 443 → 8443 redirect via pf (macOS only, requires sudo once)
+		if runtime.GOOS == "darwin" {
+			if !pf.IsDaemonInstalled() {
+				fmt.Println("Setting up port 443 redirect (requires sudo, persists across reboots)...")
+				if err := pf.InstallDaemon(cfg.Daemon.ListenPort); err != nil {
+					fmt.Printf("  Warning: could not set up pf redirect: %v\n", err)
+					fmt.Printf("  Run manually: echo 'rdr pass on lo0 proto tcp from any to any port 443 -> 127.0.0.1 port %d' | sudo pfctl -ef -\n", cfg.Daemon.ListenPort)
+				} else {
+					fmt.Println("  Port redirect installed and active.")
+				}
+			} else if !pf.IsEnabled(cfg.Daemon.ListenPort) {
+				// Daemon installed but rule not active yet — load it
+				pf.Enable(cfg.Daemon.ListenPort) //nolint:errcheck
+				fmt.Println("Port redirect active.")
+			} else {
+				fmt.Println("Port redirect already active.")
+			}
 		}
 
 		fmt.Println("\nproxysh daemon started!")

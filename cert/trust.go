@@ -6,10 +6,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 // InstallCA installs the CA certificate into the user login keychain.
 // No sudo required — the login keychain is trusted by Safari, Chrome, and curl.
+// Also installs into Firefox's NSS store if Firefox is present.
 func InstallCA(caDir string) error {
 	caPath := filepath.Join(caDir, "ca.crt")
 	switch runtime.GOOS {
@@ -28,6 +30,8 @@ func InstallCA(caDir string) error {
 		if err != nil {
 			return fmt.Errorf("failed to install CA: %w\n%s", err, out)
 		}
+		// Also trust in Firefox if installed
+		installFirefox(caPath, home)
 		return nil
 	case "linux":
 		// Try update-ca-certificates (Debian/Ubuntu)
@@ -50,6 +54,54 @@ func InstallCA(caDir string) error {
 	}
 }
 
+// installFirefox adds the CA to all Firefox profile NSS databases using certutil.
+// Silently skips if Firefox is not installed or certutil is not available.
+func installFirefox(caPath, home string) {
+	certutil, err := findCertutil()
+	if err != nil {
+		return
+	}
+
+	profiles := findFirefoxProfiles(home)
+	for _, profile := range profiles {
+		exec.Command(certutil, "-A",
+			"-n", "proxysh CA",
+			"-t", "CT,,",
+			"-i", caPath,
+			"-d", "sql:"+profile,
+		).Run() //nolint:errcheck
+	}
+}
+
+// findCertutil looks for certutil in common locations.
+func findCertutil() (string, error) {
+	// Check bundled with Firefox first
+	bundled := "/Applications/Firefox.app/Contents/MacOS/certutil"
+	if _, err := os.Stat(bundled); err == nil {
+		return bundled, nil
+	}
+	// Fall back to system-installed (brew install nss)
+	return exec.LookPath("certutil")
+}
+
+// findFirefoxProfiles returns paths to all Firefox profile directories.
+func findFirefoxProfiles(home string) []string {
+	profilesDir := filepath.Join(home, "Library", "Application Support", "Firefox", "Profiles")
+	entries, err := os.ReadDir(profilesDir)
+	if err != nil {
+		return nil
+	}
+	var profiles []string
+	for _, e := range entries {
+		if e.IsDir() && (strings.HasSuffix(e.Name(), ".default-release") ||
+			strings.HasSuffix(e.Name(), ".default") ||
+			strings.Contains(e.Name(), "release")) {
+			profiles = append(profiles, filepath.Join(profilesDir, e.Name()))
+		}
+	}
+	return profiles
+}
+
 // UninstallCA removes the CA certificate from the system trust store.
 func UninstallCA(caDir string) error {
 	caPath := filepath.Join(caDir, "ca.crt")
@@ -59,6 +111,14 @@ func UninstallCA(caDir string) error {
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("failed to remove CA: %w\n%s", err, out)
+		}
+		// Also remove from Firefox
+		home, _ := os.UserHomeDir()
+		certutil, err := findCertutil()
+		if err == nil {
+			for _, profile := range findFirefoxProfiles(home) {
+				exec.Command(certutil, "-D", "-n", "proxysh CA", "-d", "sql:"+profile).Run() //nolint:errcheck
+			}
 		}
 		return nil
 	case "linux":

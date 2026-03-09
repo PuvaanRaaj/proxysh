@@ -31,6 +31,10 @@ func Execute() {
 	}
 }
 
+func SetVersion(v string) {
+	rootCmd.Version = v
+}
+
 func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: .proxysh.yaml)")
 }

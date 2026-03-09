@@ -10,32 +10,54 @@ import (
 
 const releaseAPI = "https://api.github.com/repos/PuvaanRaaj/proxysh/releases/latest"
 
-// Check fetches the latest release from GitHub and prints a notice if a newer
-// version is available. Runs synchronously — call it in a goroutine.
-func Check(current string) {
+// CheckAsync starts a background update check and returns a function that
+// waits for the result (up to the HTTP timeout) and prints a notice if a
+// newer version is available. Call the returned function after the command runs.
+func CheckAsync(current string) func() {
 	if current == "dev" || current == "" {
-		return
+		return func() {}
 	}
 
-	client := &http.Client{Timeout: 3 * time.Second}
-	resp, err := client.Get(releaseAPI)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
+	type result struct{ msg string }
+	ch := make(chan result, 1)
 
-	var release struct {
-		TagName string `json:"tag_name"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
-		return
-	}
+	go func() {
+		client := &http.Client{Timeout: 3 * time.Second}
+		resp, err := client.Get(releaseAPI)
+		if err != nil {
+			ch <- result{}
+			return
+		}
+		defer resp.Body.Close()
 
-	latest := strings.TrimPrefix(release.TagName, "v")
-	curr := strings.TrimPrefix(current, "v")
+		var release struct {
+			TagName string `json:"tag_name"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+			ch <- result{}
+			return
+		}
 
-	if latest != "" && latest != curr {
-		fmt.Printf("\n  A new version of proxysh is available: v%s → v%s\n", curr, latest)
-		fmt.Println("  Update: curl -sL https://proxysh.zerostate.my/install.sh | sh\n")
+		latest := strings.TrimPrefix(release.TagName, "v")
+		curr := strings.TrimPrefix(current, "v")
+
+		if latest != "" && latest != curr {
+			ch <- result{msg: fmt.Sprintf(
+				"\n  A new version of proxysh is available: v%s → v%s\n  Update: curl -sL https://proxysh.zerostate.my/install.sh | sh\n",
+				curr, latest,
+			)}
+		} else {
+			ch <- result{}
+		}
+	}()
+
+	return func() {
+		select {
+		case r := <-ch:
+			if r.msg != "" {
+				fmt.Print(r.msg)
+			}
+		case <-time.After(3 * time.Second):
+		}
 	}
 }

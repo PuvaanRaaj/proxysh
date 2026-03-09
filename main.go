@@ -9,7 +9,8 @@ import (
 var version = "dev"
 
 func main() {
-	go update.Check(version)
+	printUpdate := update.CheckAsync(version)
 	cmd.SetVersion(version)
 	cmd.Execute()
+	printUpdate()
 }

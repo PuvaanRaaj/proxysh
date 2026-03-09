@@ -2,34 +2,50 @@ package hosts
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 )
 
-func sudoRun(args ...string) ([]byte, error) {
-	cmd := exec.Command("sudo", args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	return cmd.Output()
-}
-
 const hostsFile = "/etc/hosts"
 const marker = "# proxysh"
 
+// writeHosts writes content to /etc/hosts, falling back to sudo tee if
+// the file is not writable by the current user.
+func writeHosts(content string) error {
+	err := os.WriteFile(hostsFile, []byte(content), 0644)
+	if err == nil {
+		return nil
+	}
+	if !errors.Is(err, os.ErrPermission) {
+		return err
+	}
+	// Fall back to sudo tee
+	cmd := exec.Command("sudo", "tee", hostsFile)
+	cmd.Stdin = strings.NewReader(content)
+	cmd.Stdout = os.NewFile(0, os.DevNull)
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
 // AddEntry adds a 127.0.0.1 <domain> entry to /etc/hosts.
-// Requires sudo because /etc/hosts is owned by root on macOS.
+// Only escalates to sudo if the file is not writable by the current user.
 func AddEntry(domain string) error {
 	if HasEntry(domain) {
 		return nil
 	}
-	entry := fmt.Sprintf("127.0.0.1 %s %s", domain, marker)
-	out, err := sudoRun("sh", "-c", fmt.Sprintf("echo %q >> %s", entry, hostsFile))
+
+	f, err := os.ReadFile(hostsFile)
 	if err != nil {
-		return fmt.Errorf("failed to add hosts entry: %w\n%s", err, out)
+		return err
 	}
-	return nil
+
+	content := strings.TrimRight(string(f), "\n") + "\n" +
+		fmt.Sprintf("127.0.0.1 %s %s\n", domain, marker)
+
+	return writeHosts(content)
 }
 
 // RemoveEntry removes the proxysh-managed entry for domain from /etc/hosts.
@@ -53,15 +69,7 @@ func RemoveEntry(domain string) error {
 		lines = append(lines, line)
 	}
 
-	newContent := strings.Join(lines, "\n") + "\n"
-	cmd := exec.Command("sudo", "sh", "-c", fmt.Sprintf("cat > %s", hostsFile))
-	cmd.Stdin = strings.NewReader(newContent)
-	cmd.Stderr = os.Stderr
-	out, err := cmd.Output()
-	if err != nil {
-		return fmt.Errorf("failed to update hosts: %w\n%s", err, out)
-	}
-	return nil
+	return writeHosts(strings.Join(lines, "\n") + "\n")
 }
 
 // HasEntry returns true if /etc/hosts already has an entry for domain managed by proxysh.

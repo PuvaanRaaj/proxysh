@@ -1,0 +1,23 @@
+# proxysh cursor rules
+
+## Go
+- Always use Go 1.25
+- Always use ECDSA P-256 for certificate generation, never RSA
+- Always use `x509.MarshalECPrivateKey` / `x509.ParseECPrivateKey` for ECDSA PEM encoding
+- Use `github.com/spf13/cobra` for all CLI commands
+- Use `gopkg.in/yaml.v3` for config parsing
+
+## Proxy / TLS
+- Never use `httputil.ReverseProxy` for WebSocket connections — always hijack and io.Copy raw TCP
+- Always use `tls.Config.GetCertificate` for SNI-based routing
+- Never bind to port 443 directly — always bind to 8443 and use pf redirect
+
+## System
+- Always use `sudo sh -c '...'` for /etc/hosts writes
+- Always use `sudo security add-trusted-cert` for macOS CA installation
+- Never skip `git init` before `gh repo create --source=.`
+- Never set cert validity above 825 days (macOS limit)
+
+## Static Site
+- Never add a build step to docs/ — keep it as a single index.html file
+- Always serve GitHub Pages from /docs on main branch

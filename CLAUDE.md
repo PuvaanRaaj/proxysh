@@ -1,0 +1,60 @@
+# proxysh
+
+Local HTTPS development domains & tunneling toolkit — written in Go.
+
+## Quick Reference
+```
+proxysh start              # generate CA, install trust, start daemon
+proxysh up myapp 3000      # https://myapp.test → localhost:3000
+proxysh list               # list active domains
+proxysh share --port 3000  # public URL via tunnel
+proxysh doctor             # health checks
+```
+
+## Codebase Memory
+> Auto-generated — edit /memory/*.md, not this file.
+> Last synced: 2026-03-09
+
+---
+
+### Conventions
+
+**Go**
+- Module: `github.com/PuvaanRaaj/proxysh`
+- Go version: 1.25 (always use latest)
+- CLI framework: `github.com/spf13/cobra`
+- Config format: YAML via `gopkg.in/yaml.v3`
+- Cert algorithm: ECDSA P-256 (not RSA — smaller, faster, modern)
+- IPC transport: Unix socket at `/tmp/proxysh.sock`, encoded as JSON
+
+**Architecture**
+- Daemon binds to port 8443; pf rdr rule redirects 443 → 8443 (no root needed at runtime)
+- LaunchAgent (not LaunchDaemon) — runs as user, auto-starts on login
+- Hot reload: CLI sends `{"cmd":"reload"}` over Unix socket; daemon swaps route table atomically under `sync.RWMutex`
+
+**Static Site**
+- Landing page: `docs/index.html` (single file, no build step)
+- GitHub Pages from `/docs` on `main` — `https://puvaanraaj.github.io/proxysh/`
+
+---
+
+### Services & Paths
+
+| Resource | Path |
+|---|---|
+| CA certificate | `~/.config/proxysh/ca/ca.crt` |
+| Domain certs | `~/.config/proxysh/certs/<domain>.{crt,key}` |
+| Daemon log | `~/.config/proxysh/proxysh.log` |
+| IPC socket | `/tmp/proxysh.sock` |
+| LaunchAgent plist | `~/Library/LaunchAgents/com.PuvaanRaaj.proxysh.plist` |
+| Relay server | `proxysh.show:7000` (TLS, client-side only — not yet hosted) |
+
+---
+
+### Gotchas
+
+- Port 443 requires root on macOS — daemon binds to 8443, pf rdr rule redirects 443 → 8443
+- `httputil.ReverseProxy` does NOT handle WebSocket — must hijack conn and `io.Copy` raw TCP
+- `gh repo create --source=.` requires `git init` first
+- macOS cert max validity: 825 days
+- ECDSA PEM: use `x509.MarshalECPrivateKey` / `x509.ParseECPrivateKey` (not PKCS8)

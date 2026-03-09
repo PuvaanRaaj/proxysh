@@ -3,12 +3,14 @@ package cmd
 import (
 	"fmt"
 	"os/exec"
+	"runtime"
+	"strings"
 
+	"github.com/PuvaanRaaj/proxysh/autostart"
 	"github.com/PuvaanRaaj/proxysh/cert"
 	"github.com/PuvaanRaaj/proxysh/config"
 	"github.com/PuvaanRaaj/proxysh/hosts"
 	"github.com/PuvaanRaaj/proxysh/ipc"
-	"github.com/PuvaanRaaj/proxysh/launchd"
 	"github.com/spf13/cobra"
 )
 
@@ -56,10 +58,10 @@ var doctorCmd = &cobra.Command{
 			daemonErr == nil,
 			"Run 'proxysh start' to start the daemon")
 
-		// LaunchAgent
-		check("LaunchAgent installed",
-			launchd.IsLoaded(),
-			"Run 'proxysh start' to install and start the LaunchAgent")
+		// Auto-start service
+		check("Auto-start service installed",
+			autostart.IsInstalled(),
+			"Run 'proxysh start' to install the auto-start service")
 
 		// Per-domain checks
 		if len(cfg.Domains) > 0 {
@@ -79,15 +81,17 @@ var doctorCmd = &cobra.Command{
 			}
 		}
 
-		// pf redirect check
-		fmt.Println()
-		fmt.Println("Network:")
-		pfOk := checkPFRedirect(cfg.Daemon.ListenPort)
-		check(
-			fmt.Sprintf("Port 443 → %d redirect (pf)", cfg.Daemon.ListenPort),
-			pfOk,
-			fmt.Sprintf("Run: echo 'rdr pass on lo0 proto tcp from any to any port 443 -> 127.0.0.1 port %d' | sudo pfctl -ef -", cfg.Daemon.ListenPort),
-		)
+		// Port redirect check (macOS/Linux only)
+		if runtime.GOOS == "darwin" || runtime.GOOS == "linux" {
+			fmt.Println()
+			fmt.Println("Network:")
+			pfOk := checkPortRedirect(cfg.Daemon.ListenPort)
+			check(
+				fmt.Sprintf("Port 443 → %d redirect", cfg.Daemon.ListenPort),
+				pfOk,
+				"Run 'proxysh start' to set up the port redirect",
+			)
+		}
 
 		fmt.Printf("\n%d checks passed, %d failed\n", pass, fail)
 		if fail > 0 {
@@ -97,16 +101,24 @@ var doctorCmd = &cobra.Command{
 	},
 }
 
-func checkPFRedirect(port int) bool {
-	out, err := exec.Command("sudo", "pfctl", "-s", "nat").Output()
-	if err != nil {
+func checkPortRedirect(port int) bool {
+	portStr := fmt.Sprintf("%d", port)
+	switch runtime.GOOS {
+	case "darwin":
+		out, err := exec.Command("pfctl", "-s", "nat").Output()
+		if err != nil {
+			return false
+		}
+		return strings.Contains(string(out), portStr)
+	case "linux":
+		out, err := exec.Command("sudo", "iptables", "-t", "nat", "-L", "OUTPUT", "-n").Output()
+		if err != nil {
+			return false
+		}
+		return strings.Contains(string(out), portStr)
+	default:
 		return false
 	}
-	return len(out) > 0 && containsPort(string(out), port)
-}
-
-func containsPort(s string, port int) bool {
-	return len(s) > 0 && (len(fmt.Sprintf("%d", port)) > 0)
 }
 
 func init() {

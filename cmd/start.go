@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/PuvaanRaaj/proxysh/autostart"
 	"github.com/PuvaanRaaj/proxysh/cert"
 	"github.com/PuvaanRaaj/proxysh/config"
-	"github.com/PuvaanRaaj/proxysh/launchd"
 	"github.com/PuvaanRaaj/proxysh/pf"
 	"github.com/spf13/cobra"
 )
@@ -19,9 +19,10 @@ var startCmd = &cobra.Command{
 	Short: "Start the proxysh daemon and install certificates",
 	Long: `Start sets up proxysh for the first time:
   1. Generates a local CA certificate
-  2. Installs the CA into your login keychain (no sudo required)
-  3. Installs a LaunchAgent so the proxy starts automatically on login
-  4. Starts the daemon`,
+  2. Installs the CA into your trust store (no sudo on macOS)
+  3. Installs a service so the proxy starts automatically on login
+  4. Sets up port 443 redirect (requires sudo once)
+  5. Starts the daemon`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfgPath := resolveConfig()
 		cfg, err := config.Load(cfgPath)
@@ -44,15 +45,15 @@ var startCmd = &cobra.Command{
 			fmt.Println("CA certificate already exists, skipping.")
 		}
 
-		// 2. Install CA into user login keychain (no sudo needed)
+		// 2. Install CA into trust store
 		if !cert.IsCAInstalled(cfg.Cert.CADir) {
-			fmt.Println("Installing CA into system trust store (this may ask for your password)...")
+			fmt.Println("Installing CA into trust store...")
 			if err := cert.InstallCA(cfg.Cert.CADir); err != nil {
 				return fmt.Errorf("install CA: %w", err)
 			}
 			fmt.Println("  CA installed and trusted.")
 		} else {
-			fmt.Println("CA already trusted by system.")
+			fmt.Println("CA already trusted.")
 		}
 
 		// 3. Generate domain certs for any already-configured domains
@@ -68,46 +69,33 @@ var startCmd = &cobra.Command{
 			}
 		}
 
-		// 4. Install LaunchAgent
+		// 4. Install auto-start service
 		binPath, err := os.Executable()
 		if err != nil {
 			binPath, _ = exec.LookPath("proxysh")
 		}
 		binPath, _ = filepath.Abs(binPath)
 
-		plistPath := config.DefaultLaunchAgentPlist()
-		if err := os.MkdirAll(filepath.Dir(plistPath), 0755); err != nil {
-			return err
-		}
-
-		if err := launchd.Write(launchd.PlistData{
+		if err := autostart.Install(autostart.Config{
 			BinPath:    binPath,
 			ConfigPath: cfgPath,
 			LogFile:    cfg.Daemon.LogFile,
-		}, plistPath); err != nil {
-			return fmt.Errorf("write plist: %w", err)
+		}); err != nil {
+			fmt.Printf("  Warning: could not install auto-start service: %v\n", err)
+			fmt.Println("  Start the daemon manually with: proxysh daemon")
 		}
 
-		// 5. Load LaunchAgent
-		if launchd.IsLoaded() {
-			launchd.Unload(plistPath) //nolint:errcheck
-		}
-		if err := launchd.Load(plistPath); err != nil {
-			return fmt.Errorf("load agent: %w", err)
-		}
-
-		// 6. Set up port 443 → 8443 redirect via pf (macOS only, requires sudo once)
-		if runtime.GOOS == "darwin" {
+		// 5. Set up port 443 redirect (macOS + Linux only, requires sudo once)
+		if runtime.GOOS == "darwin" || runtime.GOOS == "linux" {
 			if !pf.IsDaemonInstalled() {
 				fmt.Println("Setting up port 443 redirect (requires sudo, persists across reboots)...")
 				if err := pf.InstallDaemon(cfg.Daemon.ListenPort); err != nil {
-					fmt.Printf("  Warning: could not set up pf redirect: %v\n", err)
-					fmt.Printf("  Run manually: echo 'rdr pass on lo0 proto tcp from any to any port 443 -> 127.0.0.1 port %d' | sudo pfctl -ef -\n", cfg.Daemon.ListenPort)
+					fmt.Printf("  Warning: could not set up port redirect: %v\n", err)
+					fmt.Printf("  You can still access domains on port 8443 directly.\n")
 				} else {
 					fmt.Println("  Port redirect installed and active.")
 				}
 			} else if !pf.IsEnabled(cfg.Daemon.ListenPort) {
-				// Daemon installed but rule not active yet — load it
 				pf.Enable(cfg.Daemon.ListenPort) //nolint:errcheck
 				fmt.Println("Port redirect active.")
 			} else {

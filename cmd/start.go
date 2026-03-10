@@ -7,17 +7,17 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/PuvaanRaaj/proxysh/autostart"
-	"github.com/PuvaanRaaj/proxysh/cert"
-	"github.com/PuvaanRaaj/proxysh/config"
-	"github.com/PuvaanRaaj/proxysh/pf"
+	"github.com/PuvaanRaaj/devtun/autostart"
+	"github.com/PuvaanRaaj/devtun/cert"
+	"github.com/PuvaanRaaj/devtun/config"
+	"github.com/PuvaanRaaj/devtun/pf"
 	"github.com/spf13/cobra"
 )
 
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Start the proxysh daemon and install certificates",
-	Long: `Start sets up proxysh for the first time:
+	Short: "Start the devtun daemon and install certificates",
+	Long: `Start sets up devtun for the first time:
   1. Generates a local CA certificate
   2. Installs the CA into your trust store (no sudo on macOS)
   3. Installs a service so the proxy starts automatically on login
@@ -72,7 +72,7 @@ var startCmd = &cobra.Command{
 		// 4. Install auto-start service
 		binPath, err := os.Executable()
 		if err != nil {
-			binPath, _ = exec.LookPath("proxysh")
+			binPath, _ = exec.LookPath("devtun")
 		}
 		binPath, _ = filepath.Abs(binPath)
 
@@ -82,7 +82,7 @@ var startCmd = &cobra.Command{
 			LogFile:    cfg.Daemon.LogFile,
 		}); err != nil {
 			fmt.Printf("  Warning: could not install auto-start service: %v\n", err)
-			fmt.Println("  Start the daemon manually with: proxysh daemon")
+			fmt.Println("  Start the daemon manually with: devtun daemon")
 		}
 
 		// 5. Set up port 443 redirect (macOS + Linux only, requires sudo once)
@@ -103,9 +103,9 @@ var startCmd = &cobra.Command{
 			}
 		}
 
-		fmt.Println("\nproxysh daemon started!")
+		fmt.Println("\ndevtun daemon started!")
 		fmt.Printf("Proxy listening on https://127.0.0.1:%d\n", cfg.Daemon.ListenPort)
-		fmt.Println("\nRun 'proxysh up <name> <port>' to add a .test domain.")
+		fmt.Println("\nRun 'devtun up <name> <port>' to add a .test domain.")
 		return nil
 	},
 }

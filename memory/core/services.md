@@ -1,20 +1,20 @@
 # Services & Paths
 
 ## GitHub
-- Repo: `PuvaanRaaj/proxysh` (public, `main` branch)
-- GitHub Pages: `https://puvaanraaj.github.io/proxysh/` (from `/docs` on `main`)
+- Repo: `PuvaanRaaj/devtun` (public, `main` branch)
+- GitHub Pages: `https://puvaanraaj.github.io/devtun/` (from `/docs` on `main`)
 
 ## Runtime Paths
 | Resource | Path |
 |---|---|
-| CA certificate | `~/.config/proxysh/ca/ca.crt` |
-| CA private key | `~/.config/proxysh/ca/ca.key` |
-| Domain certs | `~/.config/proxysh/certs/<domain>.{crt,key}` |
-| Daemon log | `~/.config/proxysh/proxysh.log` |
-| PID file | `~/.config/proxysh/proxysh.pid` |
-| IPC socket | `/tmp/proxysh.sock` |
-| LaunchAgent plist | `~/Library/LaunchAgents/com.PuvaanRaaj.proxysh.plist` |
-| User config | `~/.proxysh.yaml` (or nearest `.proxysh.yaml` walking up from cwd) |
+| CA certificate | `~/.config/devtun/ca/ca.crt` |
+| CA private key | `~/.config/devtun/ca/ca.key` |
+| Domain certs | `~/.config/devtun/certs/<domain>.{crt,key}` |
+| Daemon log | `~/.config/devtun/devtun.log` |
+| PID file | `~/.config/devtun/devtun.pid` |
+| IPC socket | `/tmp/devtun.sock` |
+| LaunchAgent plist | `~/Library/LaunchAgents/com.PuvaanRaaj.devtun.plist` |
+| User config | `~/.devtun.yaml` (or nearest `.devtun.yaml` walking up from cwd) |
 
 ## External Services
-- Relay server: `proxysh.show:7000` (TLS) — used by `proxysh share`; client-side only, relay server not yet implemented
+- Relay server: `devtun.show:7000` (TLS) — used by `devtun share`; client-side only, relay server not yet implemented

@@ -10,7 +10,7 @@ import (
 )
 
 const hostsFile = "/etc/hosts"
-const marker = "# proxysh"
+const marker = "# devtun"
 
 // writeHosts writes content to /etc/hosts, falling back to sudo tee if
 // the file is not writable by the current user.
@@ -48,7 +48,7 @@ func AddEntry(domain string) error {
 	return writeHosts(content)
 }
 
-// RemoveEntry removes the proxysh-managed entry for domain from /etc/hosts.
+// RemoveEntry removes the devtun-managed entry for domain from /etc/hosts.
 func RemoveEntry(domain string) error {
 	if !HasEntry(domain) {
 		return nil
@@ -72,7 +72,7 @@ func RemoveEntry(domain string) error {
 	return writeHosts(strings.Join(lines, "\n") + "\n")
 }
 
-// HasEntry returns true if /etc/hosts already has an entry for domain managed by proxysh.
+// HasEntry returns true if /etc/hosts already has an entry for domain managed by devtun.
 func HasEntry(domain string) bool {
 	f, err := os.ReadFile(hostsFile)
 	if err != nil {
@@ -88,7 +88,7 @@ func HasEntry(domain string) bool {
 	return false
 }
 
-// ListEntries returns all domains managed by proxysh in /etc/hosts.
+// ListEntries returns all domains managed by devtun in /etc/hosts.
 func ListEntries() []string {
 	f, err := os.ReadFile(hostsFile)
 	if err != nil {

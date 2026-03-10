@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"sync"
 
-	"github.com/PuvaanRaaj/proxysh/config"
+	"github.com/PuvaanRaaj/devtun/config"
 )
 
 type route struct {

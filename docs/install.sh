@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 set -e
 
-REPO="PuvaanRaaj/proxysh"
-BIN="proxysh"
+REPO="PuvaanRaaj/devtun"
+BIN="devtun"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 
 # Detect OS and architecture
@@ -43,7 +43,7 @@ URL="https://github.com/${REPO}/releases/download/${LATEST}/${TARBALL}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-echo "Downloading proxysh ${LATEST} (${OS}/${ARCH})..."
+echo "Downloading devtun ${LATEST} (${OS}/${ARCH})..."
 curl -sL "$URL" -o "${TMP}/${TARBALL}"
 
 echo "Extracting..."
@@ -62,10 +62,10 @@ case ":$PATH:" in
 esac
 
 echo ""
-echo "proxysh installed successfully!"
+echo "devtun installed successfully!"
 echo ""
 echo "Get started:"
-echo "  proxysh start              # set up certificates and start daemon"
-echo "  proxysh up myapp 3000      # https://myapp.test → localhost:3000"
-echo "  proxysh list               # list active domains"
+echo "  devtun start              # set up certificates and start daemon"
+echo "  devtun up example 3000      # https://example.test → localhost:3000"
+echo "  devtun list               # list active domains"
 echo ""

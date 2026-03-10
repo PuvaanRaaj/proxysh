@@ -1,4 +1,4 @@
-module github.com/PuvaanRaaj/proxysh
+module github.com/PuvaanRaaj/devtun
 
 go 1.25
 

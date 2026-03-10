@@ -10,18 +10,18 @@ import (
 var cfgFile string
 
 var rootCmd = &cobra.Command{
-	Use:   "proxysh",
+	Use:   "devtun",
 	Short: "Local HTTPS development domains & tunneling toolkit",
-	Long: `proxysh — Local HTTPS Development Toolkit
+	Long: `devtun — Local HTTPS Development Toolkit
 
 Transform localhost ports into trusted HTTPS .test domains.
 Share your local servers publicly via secure tunnels.
 
 Examples:
-  proxysh up myapp 3000         # https://myapp.test → localhost:3000
-  proxysh list                  # list active domains
-  proxysh share --port 3000     # get a public URL
-  proxysh doctor                # check system health`,
+  devtun up example 3000         # https://example.test → localhost:3000
+  devtun list                  # list active domains
+  devtun share --port 3000     # get a public URL
+  devtun doctor                # check system health`,
 }
 
 func Execute() {
@@ -36,5 +36,5 @@ func SetVersion(v string) {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: .proxysh.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: .devtun.yaml)")
 }

@@ -13,13 +13,14 @@ builds:
     goarch:
       - amd64
       - arm64
-    binary: proxysh
+    binary: devtun
     ldflags:
       - -s -w -X main.version={{.Version}}
 
 archives:
-  - format: tar.gz
-    name_template: "proxysh_{{ .Os }}_{{ .Arch }}"
+  - formats:
+      - tar.gz
+    name_template: "devtun_{{ .Os }}_{{ .Arch }}"
     files:
       - install.sh
       - README.md
@@ -29,10 +30,18 @@ checksum:
 
 changelog:
   sort: asc
+  use: github
+  groups:
+    - title: "New Features"
+      regexp: "^feat"
+      order: 0
+    - title: "Bug Fixes"
+      regexp: "^fix"
+      order: 1
+    - title: "Changes"
+      regexp: ".*"
+      order: 999
   filters:
     exclude:
-      - "^docs:"
-      - "^test:"
-      - "^chore:"
       - Merge pull request
       - Merge branch

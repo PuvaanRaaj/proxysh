@@ -46,7 +46,7 @@ func InstallCA(caDir string) error {
 func installLinuxSystemStore(caPath string) error {
 	// Debian/Ubuntu
 	if _, err := exec.LookPath("update-ca-certificates"); err == nil {
-		dest := "/usr/local/share/ca-certificates/proxysh-ca.crt"
+		dest := "/usr/local/share/ca-certificates/devtun-ca.crt"
 		cp := exec.Command("sudo", "cp", caPath, dest)
 		cp.Stdin = os.Stdin
 		cp.Stderr = os.Stderr
@@ -61,7 +61,7 @@ func installLinuxSystemStore(caPath string) error {
 
 	// RHEL / Fedora / CentOS
 	if _, err := exec.LookPath("update-ca-trust"); err == nil {
-		dest := "/etc/pki/ca-trust/source/anchors/proxysh-ca.crt"
+		dest := "/etc/pki/ca-trust/source/anchors/devtun-ca.crt"
 		cp := exec.Command("sudo", "cp", caPath, dest)
 		cp.Stdin = os.Stdin
 		cp.Stderr = os.Stderr
@@ -94,7 +94,7 @@ func installNSS(caPath, home string) {
 	}
 	for _, db := range findNSSDatabases(home) {
 		exec.Command(certutil, "-A",
-			"-n", "proxysh CA",
+			"-n", "devtun CA",
 			"-t", "CT,,",
 			"-i", caPath,
 			"-d", "sql:"+db,
@@ -194,12 +194,12 @@ func UninstallCA(caDir string) error {
 	case "linux":
 		// Debian/Ubuntu
 		if _, err := exec.LookPath("update-ca-certificates"); err == nil {
-			exec.Command("sudo", "rm", "-f", "/usr/local/share/ca-certificates/proxysh-ca.crt").Run() //nolint:errcheck
+			exec.Command("sudo", "rm", "-f", "/usr/local/share/ca-certificates/devtun-ca.crt").Run() //nolint:errcheck
 			exec.Command("sudo", "update-ca-certificates", "--fresh").Run()                            //nolint:errcheck
 		}
 		// RHEL/Fedora
 		if _, err := exec.LookPath("update-ca-trust"); err == nil {
-			exec.Command("sudo", "rm", "-f", "/etc/pki/ca-trust/source/anchors/proxysh-ca.crt").Run() //nolint:errcheck
+			exec.Command("sudo", "rm", "-f", "/etc/pki/ca-trust/source/anchors/devtun-ca.crt").Run() //nolint:errcheck
 			exec.Command("sudo", "update-ca-trust", "extract").Run()                                   //nolint:errcheck
 		}
 		removeNSS(home)
@@ -216,7 +216,7 @@ func removeNSS(home string) {
 		return
 	}
 	for _, db := range findNSSDatabases(home) {
-		exec.Command(certutil, "-D", "-n", "proxysh CA", "-d", "sql:"+db).Run() //nolint:errcheck
+		exec.Command(certutil, "-D", "-n", "devtun CA", "-d", "sql:"+db).Run() //nolint:errcheck
 	}
 }
 
@@ -229,8 +229,8 @@ func IsCAInstalled(caDir string) bool {
 	case "linux":
 		// Check if the cert file exists in any known system store
 		candidates := []string{
-			"/usr/local/share/ca-certificates/proxysh-ca.crt",
-			"/etc/pki/ca-trust/source/anchors/proxysh-ca.crt",
+			"/usr/local/share/ca-certificates/devtun-ca.crt",
+			"/etc/pki/ca-trust/source/anchors/devtun-ca.crt",
 		}
 		for _, c := range candidates {
 			if _, err := os.Stat(c); err == nil {

@@ -45,7 +45,7 @@ func Default() *Config {
 		Cert: CertConfig{
 			CADir:        DefaultCADir(),
 			CertDir:      DefaultCertDir(),
-			CACommonName: "proxysh Local CA",
+			CACommonName: "devtun Local CA",
 			DaysValid:    825,
 		},
 		Domains: []Domain{},

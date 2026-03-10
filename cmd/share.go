@@ -29,8 +29,8 @@ var shareCmd = &cobra.Command{
 	Long: `Share creates a public HTTPS URL that tunnels traffic to your local port.
 
 Examples:
-  proxysh share --port 3000
-  proxysh share --port 8080 --ttl 60`,
+  devtun share --port 3000
+  devtun share --port 8080 --ttl 60`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if sharePort == 0 {
 			return fmt.Errorf("--port is required")
@@ -144,15 +144,15 @@ func randomSubdomain() string {
 }
 
 func shareDomain(relay string) string {
-	if relay == "" || relay == "proxysh.show" {
-		return "proxysh.show"
+	if relay == "" || relay == "devtun.show" {
+		return "devtun.show"
 	}
 	return relay
 }
 
 func init() {
 	shareCmd.Flags().IntVarP(&sharePort, "port", "p", 0, "Local port to share (required)")
-	shareCmd.Flags().StringVar(&shareRelay, "relay", "proxysh.show", "Relay server hostname")
+	shareCmd.Flags().StringVar(&shareRelay, "relay", "devtun.show", "Relay server hostname")
 	shareCmd.Flags().IntVar(&shareTTL, "ttl", 0, "Auto-expire tunnel after N minutes (0 = no limit)")
 	shareCmd.Flags().StringVar(&sharePassword, "password", "", "Password protect the public URL")
 	rootCmd.AddCommand(shareCmd)

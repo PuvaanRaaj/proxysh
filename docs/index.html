@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>proxysh — Local HTTPS Development Toolkit</title>
+  <title>devtun — Local HTTPS Development Toolkit</title>
   <meta name="description" content="Transform localhost ports into trusted HTTPS .test domains. Share your local servers publicly via secure tunnels." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -538,14 +538,14 @@
 
 <!-- NAV -->
 <nav>
-  <span class="nav-logo">proxy<span>.sh</span></span>
+  <span class="nav-logo">dev<span>tun</span></span>
   <ul class="nav-links">
     <li><a href="#features">Features</a></li>
     <li><a href="#how-it-works">How it works</a></li>
     <li><a href="#commands">Commands</a></li>
     <li><a href="#install">Install</a></li>
   </ul>
-  <a href="https://github.com/PuvaanRaaj/proxysh" class="nav-github" target="_blank" rel="noopener">
+  <a href="https://github.com/PuvaanRaaj/devtun" class="nav-github" target="_blank" rel="noopener">
     <svg viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
     GitHub
   </a>
@@ -562,7 +562,7 @@
   <div class="hero-transform">
     <span class="transform-from">http://localhost:3000</span>
     <span class="transform-arrow">→</span>
-    <span class="transform-to">https://myapp.test</span>
+    <span class="transform-to">https://example.test</span>
   </div>
   <div class="terminal" id="heroTerminal">
     <div class="terminal-bar">
@@ -614,7 +614,7 @@
     <div class="feature-card">
       <div class="feature-num">02</div>
       <h3>Zero Configuration</h3>
-      <p>One command to start. proxysh manages /etc/hosts, cert generation, and the LaunchAgent. Nothing to hand-edit.</p>
+      <p>One command to start. devtun manages /etc/hosts, cert generation, and the LaunchAgent. Nothing to hand-edit.</p>
       <span class="feature-tag">Auto-start on login</span>
     </div>
     <div class="feature-card">
@@ -638,7 +638,7 @@
     <div class="feature-card">
       <div class="feature-num">06</div>
       <h3>Team Config</h3>
-      <p>Commit a .proxysh.yaml to your repo. Every developer gets the same HTTPS setup without any manual steps.</p>
+      <p>Commit a .devtun.yaml to your repo. Every developer gets the same HTTPS setup without any manual steps.</p>
       <span class="feature-tag">YAML</span>
     </div>
   </div>
@@ -655,28 +655,28 @@
           <div class="hiw-step-num">01</div>
           <div>
             <h4>Install & start</h4>
-            <p>Run the install script and then <code style="color:var(--accent);font-size:.7rem">proxysh start</code>. A local CA is generated, trusted by your system, and the daemon is registered as a LaunchAgent. One sudo prompt. Done forever.</p>
+            <p>Run the install script and then <code style="color:var(--accent);font-size:.7rem">devtun start</code>. A local CA is generated, trusted by your system, and the daemon is registered as a LaunchAgent. One sudo prompt. Done forever.</p>
           </div>
         </div>
         <div class="hiw-step" data-step="1">
           <div class="hiw-step-num">02</div>
           <div>
             <h4>Add a domain</h4>
-            <p>Run <code style="color:var(--accent);font-size:.7rem">proxysh up myapp 3000</code>. A TLS cert is issued for myapp.test, /etc/hosts is updated, and the route is live. The daemon hot-reloads — no restart needed.</p>
+            <p>Run <code style="color:var(--accent);font-size:.7rem">devtun up example 3000</code>. A TLS cert is issued for example.test, /etc/hosts is updated, and the route is live. The daemon hot-reloads — no restart needed.</p>
           </div>
         </div>
         <div class="hiw-step" data-step="2">
           <div class="hiw-step-num">03</div>
           <div>
             <h4>Open in browser</h4>
-            <p>Visit <code style="color:var(--accent);font-size:.7rem">https://myapp.test</code>. Green padlock. No warnings. Port 443 → 8443 via a pf rule so the daemon never needs root after setup.</p>
+            <p>Visit <code style="color:var(--accent);font-size:.7rem">https://example.test</code>. Green padlock. No warnings. Port 443 → 8443 via a pf rule so the daemon never needs root after setup.</p>
           </div>
         </div>
         <div class="hiw-step" data-step="3">
           <div class="hiw-step-num">04</div>
           <div>
             <h4>Share publicly (optional)</h4>
-            <p>Run <code style="color:var(--accent);font-size:.7rem">proxysh share --port 3000</code>. A tunnel connects to the relay server and you get a unique public URL like <code style="color:var(--accent2);font-size:.7rem">swift-river-4271.proxysh.show</code>.</p>
+            <p>Run <code style="color:var(--accent);font-size:.7rem">devtun share --port 3000</code>. A tunnel connects to the relay server and you get a unique public URL like <code style="color:var(--accent2);font-size:.7rem">swift-river-4271.devtun.show</code>.</p>
           </div>
         </div>
       </div>
@@ -689,11 +689,11 @@
           <div class="terminal-dot green"></div>
         </div>
         <div class="hiw-terminal-body" id="hiwTerminal">
-          <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> proxysh start</span></div>
+          <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> devtun start</span></div>
           <div class="t-out">Generating local CA certificate...</div>
           <div class="t-out">Installing CA into system trust store...</div>
           <div class="t-success">✓  CA installed and trusted.</div>
-          <div class="t-success">✓  proxysh daemon started!</div>
+          <div class="t-success">✓  devtun daemon started!</div>
         </div>
       </div>
     </div>
@@ -707,35 +707,35 @@
     <h2 class="section-title">Commands</h2>
     <div class="commands-grid">
       <div class="cmd-item">
-        <code>proxysh start</code>
+        <code>devtun start</code>
         <span>Generate CA, install trust, start daemon</span>
       </div>
       <div class="cmd-item">
-        <code>proxysh up <span class="cmd-arg">&lt;name&gt; &lt;port&gt;</span></code>
+        <code>devtun up <span class="cmd-arg">&lt;name&gt; &lt;port&gt;</span></code>
         <span>Add https://&lt;name&gt;.test → localhost:&lt;port&gt;</span>
       </div>
       <div class="cmd-item">
-        <code>proxysh down <span class="cmd-arg">&lt;name&gt;</span></code>
+        <code>devtun down <span class="cmd-arg">&lt;name&gt;</span></code>
         <span>Remove a .test domain mapping</span>
       </div>
       <div class="cmd-item">
-        <code>proxysh list</code>
+        <code>devtun list</code>
         <span>List all active domains and their status</span>
       </div>
       <div class="cmd-item">
-        <code>proxysh share <span class="cmd-arg">--port 3000</span></code>
+        <code>devtun share <span class="cmd-arg">--port 3000</span></code>
         <span>Create a public URL for a local port</span>
       </div>
       <div class="cmd-item">
-        <code>proxysh logs <span class="cmd-arg">-f</span></code>
+        <code>devtun logs <span class="cmd-arg">-f</span></code>
         <span>Follow the proxy daemon log in real time</span>
       </div>
       <div class="cmd-item">
-        <code>proxysh stop</code>
+        <code>devtun stop</code>
         <span>Stop the daemon</span>
       </div>
       <div class="cmd-item">
-        <code>proxysh doctor</code>
+        <code>devtun doctor</code>
         <span>Run health checks on your setup</span>
       </div>
     </div>
@@ -751,7 +751,7 @@
     <div class="install-box" id="installBox">
       <div class="install-cmd">
         <span class="p">$</span>
-        <span class="m">curl -sL </span><span class="u">https://proxysh.zerostate.my/install.sh</span><span class="m"> | sh</span>
+        <span class="m">curl -sL </span><span class="u">https://devtun.zerostate.my/install.sh</span><span class="m"> | sh</span>
       </div>
       <button class="copy-btn" id="copyBtn" onclick="copyInstall()">
         <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -761,11 +761,11 @@
       </button>
     </div>
     <div class="install-alts">
-      <a href="https://github.com/PuvaanRaaj/proxysh/releases" target="_blank" rel="noopener">Releases</a>
+      <a href="https://github.com/PuvaanRaaj/devtun/releases" target="_blank" rel="noopener">Releases</a>
       <span class="sep">·</span>
-      <a href="https://github.com/PuvaanRaaj/proxysh" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="https://github.com/PuvaanRaaj/devtun" target="_blank" rel="noopener">View on GitHub</a>
       <span class="sep">·</span>
-      <a href="https://github.com/PuvaanRaaj/proxysh#installation" target="_blank" rel="noopener">Build from source</a>
+      <a href="https://github.com/PuvaanRaaj/devtun#installation" target="_blank" rel="noopener">Build from source</a>
     </div>
   </div>
 </section>
@@ -779,7 +779,7 @@
       Install now
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
-    <a href="https://github.com/PuvaanRaaj/proxysh" class="btn-secondary" target="_blank" rel="noopener">
+    <a href="https://github.com/PuvaanRaaj/devtun" class="btn-secondary" target="_blank" rel="noopener">
       <svg viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       Star on GitHub
     </a>
@@ -788,31 +788,31 @@
 
 <!-- FOOTER -->
 <footer>
-  <p class="footer-left">© 2026 <strong>proxysh</strong> · Built with Go · MIT License</p>
+  <p class="footer-left">© 2026 <strong>devtun</strong> · Built with Go · MIT License</p>
   <ul class="footer-links">
-    <li><a href="https://github.com/PuvaanRaaj/proxysh">GitHub</a></li>
-    <li><a href="https://github.com/PuvaanRaaj/proxysh/issues">Issues</a></li>
-    <li><a href="https://github.com/PuvaanRaaj/proxysh/releases">Releases</a></li>
+    <li><a href="https://github.com/PuvaanRaaj/devtun">GitHub</a></li>
+    <li><a href="https://github.com/PuvaanRaaj/devtun/issues">Issues</a></li>
+    <li><a href="https://github.com/PuvaanRaaj/devtun/releases">Releases</a></li>
   </ul>
 </footer>
 
 <script>
 // ─── HERO TERMINAL TYPEWRITER ───
 const lines = [
-  { type: 'cmd',     text: 'proxysh start' },
+  { type: 'cmd',     text: 'devtun start' },
   { type: 'out',     text: 'Generating local CA certificate...' },
   { type: 'out',     text: 'Installing CA into system trust store...' },
   { type: 'success', text: '✓  CA installed and trusted.' },
   { type: 'success', text: '✓  Daemon started on port 8443' },
   { type: 'gap' },
-  { type: 'cmd',     text: 'proxysh up myapp 3000' },
-  { type: 'out',     text: 'Generating certificate for myapp.test...' },
-  { type: 'out',     text: 'Adding myapp.test to /etc/hosts...' },
-  { type: 'success', text: '✓  https://myapp.test → localhost:3000' },
+  { type: 'cmd',     text: 'devtun up example 3000' },
+  { type: 'out',     text: 'Generating certificate for example.test...' },
+  { type: 'out',     text: 'Adding example.test to /etc/hosts...' },
+  { type: 'success', text: '✓  https://example.test → localhost:3000' },
   { type: 'gap' },
-  { type: 'cmd',     text: 'proxysh share --port 3000' },
+  { type: 'cmd',     text: 'devtun share --port 3000' },
   { type: 'out',     text: 'Starting tunnel for localhost:3000' },
-  { type: 'success', text: '✓  https://swift-river-4271.proxysh.show' },
+  { type: 'success', text: '✓  https://swift-river-4271.devtun.show' },
 ];
 
 const body = document.getElementById('terminalBody');
@@ -885,23 +885,23 @@ setTimeout(typeNext, 800);
 // ─── HOW IT WORKS INTERACTIVE STEPS ───
 const hiwSteps = document.querySelectorAll('.hiw-step');
 const hiwTerminalContents = [
-  `<div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> proxysh start</span></div>
+  `<div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> devtun start</span></div>
    <div class="t-out">Generating local CA certificate...</div>
    <div class="t-out">Installing CA into system trust store...</div>
    <div class="t-success">✓  CA installed and trusted.</div>
-   <div class="t-success">✓  proxysh daemon started!</div>`,
-  `<div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> proxysh up myapp 3000</span></div>
-   <div class="t-out">Generating certificate for myapp.test...</div>
-   <div class="t-out">Adding myapp.test to /etc/hosts...</div>
-   <div class="t-success">✓  https://myapp.test → localhost:3000</div>`,
-  `<div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> open https://myapp.test</span></div>
-   <div class="t-out" style="margin-top:.5rem;color:var(--accent2)">🔒 myapp.test</div>
-   <div class="t-out">Certificate: Valid · Issued by proxysh CA</div>
+   <div class="t-success">✓  devtun daemon started!</div>`,
+  `<div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> devtun up example 3000</span></div>
+   <div class="t-out">Generating certificate for example.test...</div>
+   <div class="t-out">Adding example.test to /etc/hosts...</div>
+   <div class="t-success">✓  https://example.test → localhost:3000</div>`,
+  `<div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> open https://example.test</span></div>
+   <div class="t-out" style="margin-top:.5rem;color:var(--accent2)">🔒 example.test</div>
+   <div class="t-out">Certificate: Valid · Issued by devtun CA</div>
    <div class="t-success">✓  No browser warnings.</div>`,
-  `<div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> proxysh share --port 3000</span></div>
+  `<div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> devtun share --port 3000</span></div>
    <div class="t-out">Starting tunnel for localhost:3000</div>
    <div class="t-success">✓  Public URL:</div>
-   <div class="t-success" style="color:var(--accent)">   https://swift-river-4271.proxysh.show</div>`,
+   <div class="t-success" style="color:var(--accent)">   https://swift-river-4271.devtun.show</div>`,
 ];
 
 hiwSteps.forEach((step, i) => {
@@ -914,7 +914,7 @@ hiwSteps.forEach((step, i) => {
 
 // ─── COPY INSTALL ───
 function copyInstall() {
-  const cmd = 'curl -sL https://proxysh.zerostate.my/install.sh | sh';
+  const cmd = 'curl -sL https://devtun.zerostate.my/install.sh | sh';
   navigator.clipboard.writeText(cmd).then(() => {
     const btn  = document.getElementById('copyBtn');
     const text = document.getElementById('copyText');

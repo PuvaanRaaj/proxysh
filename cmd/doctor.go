@@ -6,11 +6,11 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/PuvaanRaaj/proxysh/autostart"
-	"github.com/PuvaanRaaj/proxysh/cert"
-	"github.com/PuvaanRaaj/proxysh/config"
-	"github.com/PuvaanRaaj/proxysh/hosts"
-	"github.com/PuvaanRaaj/proxysh/ipc"
+	"github.com/PuvaanRaaj/devtun/autostart"
+	"github.com/PuvaanRaaj/devtun/cert"
+	"github.com/PuvaanRaaj/devtun/config"
+	"github.com/PuvaanRaaj/devtun/hosts"
+	"github.com/PuvaanRaaj/devtun/ipc"
 	"github.com/spf13/cobra"
 )
 
@@ -40,28 +40,28 @@ var doctorCmd = &cobra.Command{
 			}
 		}
 
-		fmt.Println("\nproxysh doctor\n")
+		fmt.Println("\ndevtun doctor\n")
 
 		// CA
 		check("CA certificate exists",
 			cert.CAExists(cfg.Cert.CADir),
-			"Run 'proxysh start' to generate a CA certificate")
+			"Run 'devtun start' to generate a CA certificate")
 
 		check("CA trusted by system",
 			cert.IsCAInstalled(cfg.Cert.CADir),
-			"Run 'proxysh start' to install the CA")
+			"Run 'devtun start' to install the CA")
 
 		// Daemon
 		client := ipc.NewClient(config.IPCSocketPath)
 		_, daemonErr := client.Status()
 		check("Daemon is running",
 			daemonErr == nil,
-			"Run 'proxysh start' to start the daemon")
+			"Run 'devtun start' to start the daemon")
 
 		// Auto-start service
 		check("Auto-start service installed",
 			autostart.IsInstalled(),
-			"Run 'proxysh start' to install the auto-start service")
+			"Run 'devtun start' to install the auto-start service")
 
 		// Per-domain checks
 		if len(cfg.Domains) > 0 {
@@ -71,12 +71,12 @@ var doctorCmd = &cobra.Command{
 				check(
 					fmt.Sprintf("Certificate: %s", d.Domain),
 					cert.DomainCertExists(cfg.Cert.CertDir, d.Domain),
-					fmt.Sprintf("Run 'proxysh up %s <port>'", d.Domain),
+					fmt.Sprintf("Run 'devtun up %s <port>'", d.Domain),
 				)
 				check(
 					fmt.Sprintf("/etc/hosts: %s", d.Domain),
 					hosts.HasEntry(d.Domain),
-					fmt.Sprintf("Run 'proxysh up %s <port>'", d.Domain),
+					fmt.Sprintf("Run 'devtun up %s <port>'", d.Domain),
 				)
 			}
 		}
@@ -89,13 +89,13 @@ var doctorCmd = &cobra.Command{
 			check(
 				fmt.Sprintf("Port 443 → %d redirect", cfg.Daemon.ListenPort),
 				pfOk,
-				"Run 'proxysh start' to set up the port redirect",
+				"Run 'devtun start' to set up the port redirect",
 			)
 		}
 
 		fmt.Printf("\n%d checks passed, %d failed\n", pass, fail)
 		if fail > 0 {
-			fmt.Println("\nRun 'proxysh start' to fix most issues.")
+			fmt.Println("\nRun 'devtun start' to fix most issues.")
 		}
 		return nil
 	},

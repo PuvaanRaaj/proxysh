@@ -73,8 +73,8 @@ func IsEnabled(port int) bool {
 // ---- macOS pf implementation ----
 
 const (
-	anchorFile  = "/etc/pf.anchors/com.proxysh"
-	daemonPlist = "/Library/LaunchDaemons/com.proxysh.pf.plist"
+	anchorFile  = "/etc/pf.anchors/com.devtun"
+	daemonPlist = "/Library/LaunchDaemons/com.devtun.pf.plist"
 )
 
 const pfDaemonPlist = `<?xml version="1.0" encoding="UTF-8"?>
@@ -83,12 +83,12 @@ const pfDaemonPlist = `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.proxysh.pf</string>
+    <string>com.devtun.pf</string>
     <key>ProgramArguments</key>
     <array>
         <string>/sbin/pfctl</string>
         <string>-ef</string>
-        <string>/etc/pf.anchors/com.proxysh</string>
+        <string>/etc/pf.anchors/com.devtun</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -133,7 +133,7 @@ func installPFDaemon(port int) error {
 
 // ---- Linux iptables implementation ----
 
-const iptablesPersistFile = "/etc/proxysh-iptables.conf"
+const iptablesPersistFile = "/etc/devtun-iptables.conf"
 
 func enableIPTables(port int) error {
 	// Redirect incoming on lo

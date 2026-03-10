@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/PuvaanRaaj/proxysh/cert"
-	"github.com/PuvaanRaaj/proxysh/config"
-	"github.com/PuvaanRaaj/proxysh/hosts"
-	"github.com/PuvaanRaaj/proxysh/ipc"
+	"github.com/PuvaanRaaj/devtun/cert"
+	"github.com/PuvaanRaaj/devtun/config"
+	"github.com/PuvaanRaaj/devtun/hosts"
+	"github.com/PuvaanRaaj/devtun/ipc"
 	"github.com/spf13/cobra"
 )
 

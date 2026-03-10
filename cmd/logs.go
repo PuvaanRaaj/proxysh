@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/PuvaanRaaj/proxysh/config"
+	"github.com/PuvaanRaaj/devtun/config"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +26,7 @@ var logsCmd = &cobra.Command{
 
 		logFile := cfg.Daemon.LogFile
 		if _, err := os.Stat(logFile); os.IsNotExist(err) {
-			return fmt.Errorf("log file not found: %s\nIs the daemon running? Try 'proxysh start'", logFile)
+			return fmt.Errorf("log file not found: %s\nIs the daemon running? Try 'devtun start'", logFile)
 		}
 
 		tailArgs := []string{fmt.Sprintf("-n%d", logsLines)}

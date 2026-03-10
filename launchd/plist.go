@@ -13,7 +13,7 @@ const plistTemplate = `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.PuvaanRaaj.proxysh</string>
+    <string>com.PuvaanRaaj.devtun</string>
 
     <key>ProgramArguments</key>
     <array>
@@ -80,6 +80,6 @@ func Unload(plistPath string) error {
 
 // IsLoaded returns true if the launchd agent is currently loaded.
 func IsLoaded() bool {
-	cmd := exec.Command("launchctl", "list", "com.PuvaanRaaj.proxysh")
+	cmd := exec.Command("launchctl", "list", "com.PuvaanRaaj.devtun")
 	return cmd.Run() == nil
 }

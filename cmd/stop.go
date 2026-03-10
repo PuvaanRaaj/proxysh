@@ -3,15 +3,15 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/PuvaanRaaj/proxysh/autostart"
-	"github.com/PuvaanRaaj/proxysh/config"
-	"github.com/PuvaanRaaj/proxysh/ipc"
+	"github.com/PuvaanRaaj/devtun/autostart"
+	"github.com/PuvaanRaaj/devtun/config"
+	"github.com/PuvaanRaaj/devtun/ipc"
 	"github.com/spf13/cobra"
 )
 
 var stopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "Stop the proxysh daemon",
+	Short: "Stop the devtun daemon",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := ipc.NewClient(config.IPCSocketPath)
 		if err := client.Shutdown(); err != nil {
@@ -22,7 +22,7 @@ var stopCmd = &cobra.Command{
 			fmt.Printf("Warning: could not stop auto-start service: %v\n", err)
 		}
 
-		fmt.Println("proxysh daemon stopped.")
+		fmt.Println("devtun daemon stopped.")
 		return nil
 	},
 }

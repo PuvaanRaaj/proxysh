@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/PuvaanRaaj/proxysh/config"
-	"github.com/PuvaanRaaj/proxysh/daemon"
+	"github.com/PuvaanRaaj/devtun/config"
+	"github.com/PuvaanRaaj/devtun/daemon"
 	"github.com/spf13/cobra"
 )
 

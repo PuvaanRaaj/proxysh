@@ -15,7 +15,7 @@ import (
 
 // ---- macOS launchd ----
 
-const launchdLabel = "com.PuvaanRaaj.proxysh"
+const launchdLabel = "com.PuvaanRaaj.devtun"
 
 const launchdTemplate = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -23,7 +23,7 @@ const launchdTemplate = `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.PuvaanRaaj.proxysh</string>
+    <string>com.PuvaanRaaj.devtun</string>
     <key>ProgramArguments</key>
     <array>
         <string>{{.BinPath}}</string>
@@ -46,7 +46,7 @@ const launchdTemplate = `<?xml version="1.0" encoding="UTF-8"?>
 // ---- Linux systemd ----
 
 const systemdTemplate = `[Unit]
-Description=proxysh local HTTPS proxy daemon
+Description=devtun local HTTPS proxy daemon
 After=network.target
 
 [Service]
@@ -74,7 +74,7 @@ func Install(cfg Config) error {
 	case "linux":
 		return installSystemd(cfg)
 	default:
-		return fmt.Errorf("auto-start not supported on %s — start the daemon manually with: proxysh daemon", runtime.GOOS)
+		return fmt.Errorf("auto-start not supported on %s — start the daemon manually with: devtun daemon", runtime.GOOS)
 	}
 }
 
@@ -96,7 +96,7 @@ func IsInstalled() bool {
 	case "darwin":
 		return exec.Command("launchctl", "list", launchdLabel).Run() == nil
 	case "linux":
-		return exec.Command("systemctl", "--user", "is-enabled", "--quiet", "proxysh").Run() == nil
+		return exec.Command("systemctl", "--user", "is-enabled", "--quiet", "devtun").Run() == nil
 	default:
 		return false
 	}
@@ -136,7 +136,7 @@ func uninstallLaunchd() error {
 
 func systemdServicePath() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".config", "systemd", "user", "proxysh.service")
+	return filepath.Join(home, ".config", "systemd", "user", "devtun.service")
 }
 
 func installSystemd(cfg Config) error {
@@ -148,8 +148,8 @@ func installSystemd(cfg Config) error {
 		return err
 	}
 	exec.Command("systemctl", "--user", "daemon-reload").Run()          //nolint:errcheck
-	exec.Command("systemctl", "--user", "enable", "proxysh").Run()      //nolint:errcheck
-	out, err := exec.Command("systemctl", "--user", "start", "proxysh").CombinedOutput()
+	exec.Command("systemctl", "--user", "enable", "devtun").Run()      //nolint:errcheck
+	out, err := exec.Command("systemctl", "--user", "start", "devtun").CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("systemctl start: %w\n%s", err, out)
 	}
@@ -157,8 +157,8 @@ func installSystemd(cfg Config) error {
 }
 
 func uninstallSystemd() error {
-	exec.Command("systemctl", "--user", "stop", "proxysh").Run()    //nolint:errcheck
-	exec.Command("systemctl", "--user", "disable", "proxysh").Run() //nolint:errcheck
+	exec.Command("systemctl", "--user", "stop", "devtun").Run()    //nolint:errcheck
+	exec.Command("systemctl", "--user", "disable", "devtun").Run() //nolint:errcheck
 	return os.Remove(systemdServicePath())
 }
 

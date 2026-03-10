@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const releaseAPI = "https://api.github.com/repos/PuvaanRaaj/proxysh/releases/latest"
+const releaseAPI = "https://api.github.com/repos/PuvaanRaaj/devtun/releases/latest"
 
 // CheckAsync starts a background update check and returns a function that
 // waits for the result (up to the HTTP timeout) and prints a notice if a
@@ -43,7 +43,7 @@ func CheckAsync(current string) func() {
 
 		if latest != "" && latest != curr {
 			ch <- result{msg: fmt.Sprintf(
-				"\n  A new version of proxysh is available: v%s → v%s\n  Update: curl -sL https://proxysh.zerostate.my/install.sh | sh\n",
+				"\n  A new version of devtun is available: v%s → v%s\n  Update: curl -sL https://devtun.zerostate.my/install.sh | sh\n",
 				curr, latest,
 			)}
 		} else {

@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/PuvaanRaaj/proxysh/config"
-	"github.com/PuvaanRaaj/proxysh/ipc"
+	"github.com/PuvaanRaaj/devtun/config"
+	"github.com/PuvaanRaaj/devtun/ipc"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +21,7 @@ var listCmd = &cobra.Command{
 		}
 
 		if len(resp.Domains) == 0 {
-			fmt.Println("No active domains. Run 'proxysh up <name> <port>' to add one.")
+			fmt.Println("No active domains. Run 'devtun up <name> <port>' to add one.")
 			return nil
 		}
 
@@ -45,7 +45,7 @@ func listFromConfig() error {
 		return err
 	}
 	if len(cfg.Domains) == 0 {
-		fmt.Println("No domains configured. Run 'proxysh start' then 'proxysh up <name> <port>'.")
+		fmt.Println("No domains configured. Run 'devtun start' then 'devtun up <name> <port>'.")
 		return nil
 	}
 	fmt.Println("(daemon not running — showing config)")

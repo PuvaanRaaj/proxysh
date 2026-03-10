@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/PuvaanRaaj/proxysh/cert"
-	"github.com/PuvaanRaaj/proxysh/config"
-	"github.com/PuvaanRaaj/proxysh/hosts"
-	"github.com/PuvaanRaaj/proxysh/ipc"
+	"github.com/PuvaanRaaj/devtun/cert"
+	"github.com/PuvaanRaaj/devtun/config"
+	"github.com/PuvaanRaaj/devtun/hosts"
+	"github.com/PuvaanRaaj/devtun/ipc"
 	"github.com/spf13/cobra"
 )
 
@@ -17,8 +17,8 @@ var upCmd = &cobra.Command{
 	Long: `Add a domain mapping and immediately make it available over HTTPS.
 
 Examples:
-  proxysh up myapp 3000        # creates https://myapp.test → localhost:3000
-  proxysh up api 8080          # creates https://api.test → localhost:8080`,
+  devtun up example 3000        # creates https://example.test → localhost:3000
+  devtun up api 8080          # creates https://api.test → localhost:8080`,
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
@@ -39,7 +39,7 @@ Examples:
 
 		// Load or generate CA
 		if !cert.CAExists(cfg.Cert.CADir) {
-			return fmt.Errorf("proxysh is not set up — run 'proxysh start' first")
+			return fmt.Errorf("devtun is not set up — run 'devtun start' first")
 		}
 		ca, err := cert.LoadCA(cfg.Cert.CADir)
 		if err != nil {
@@ -68,7 +68,7 @@ Examples:
 		client := ipc.NewClient(config.IPCSocketPath)
 		if err := client.Reload(); err != nil {
 			fmt.Printf("Warning: could not reload daemon: %v\n", err)
-			fmt.Println("  Run 'proxysh start' if the daemon is not running.")
+			fmt.Println("  Run 'devtun start' if the daemon is not running.")
 		}
 
 		fmt.Printf("\nhttps://%s → localhost:%s\n", domain, port)

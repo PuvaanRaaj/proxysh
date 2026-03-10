@@ -10,16 +10,16 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/PuvaanRaaj/proxysh/config"
-	proxylog "github.com/PuvaanRaaj/proxysh/log"
+	"github.com/PuvaanRaaj/devtun/config"
+	tunlog "github.com/PuvaanRaaj/devtun/log"
 )
 
 // Run starts the daemon: TLS proxy server + IPC socket server.
-// cfgPath is the path to .proxysh.yaml, used for hot-reloads.
+// cfgPath is the path to .devtun.yaml, used for hot-reloads.
 func Run(cfg *config.Config, cfgPath string) error {
 	if cfg.Daemon.LogFile != "" {
-		if err := proxylog.SetFile(cfg.Daemon.LogFile); err != nil {
-			proxylog.Warn("could not open log file, using stderr", "err", err)
+		if err := tunlog.SetFile(cfg.Daemon.LogFile); err != nil {
+			tunlog.Warn("could not open log file, using stderr", "err", err)
 		}
 	}
 
@@ -47,7 +47,7 @@ func Run(cfg *config.Config, cfgPath string) error {
 	httpPort := 8080
 	httpLn, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", httpPort))
 	if err != nil {
-		proxylog.Warn("could not bind HTTP redirect port", "port", httpPort, "err", err)
+		tunlog.Warn("could not bind HTTP redirect port", "port", httpPort, "err", err)
 	}
 
 	shutdown := make(chan struct{}, 1)
@@ -75,28 +75,28 @@ func Run(cfg *config.Config, cfgPath string) error {
 			case syscall.SIGHUP:
 				newCfg, err := config.Load(cfgPath)
 				if err != nil {
-					proxylog.Error("reload config", "err", err)
+					tunlog.Error("reload config", "err", err)
 					continue
 				}
 				if err := router.Reload(newCfg); err != nil {
-					proxylog.Error("reload router", "err", err)
+					tunlog.Error("reload router", "err", err)
 					continue
 				}
-				proxylog.Info("reloaded config via SIGHUP")
+				tunlog.Info("reloaded config via SIGHUP")
 			case syscall.SIGTERM, syscall.SIGINT:
 				shutdown <- struct{}{}
 			}
 		}
 	}()
 
-	proxylog.Info("proxysh daemon started", "addr", addr)
+	tunlog.Info("devtun daemon started", "addr", addr)
 
 	// Write PID
 	writePID(cfg.Daemon.PIDFile)
 
 	go func() {
 		<-shutdown
-		proxylog.Info("shutting down")
+		tunlog.Info("shutting down")
 		srv.Shutdown(context.Background()) //nolint:errcheck
 		os.Remove(cfg.Daemon.PIDFile)
 		os.Remove(config.IPCSocketPath)

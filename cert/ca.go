@@ -35,7 +35,7 @@ func GenerateCA(commonName string) (*CA, error) {
 		SerialNumber: serial,
 		Subject: pkix.Name{
 			CommonName:   commonName,
-			Organization: []string{"proxysh"},
+			Organization: []string{"devtun"},
 		},
 		NotBefore:             time.Now().Add(-1 * time.Hour),
 		NotAfter:              time.Now().AddDate(10, 0, 0),

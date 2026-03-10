@@ -7,13 +7,13 @@ import (
 
 const (
 	DaemonListenPort = 8443
-	IPCSocketPath    = "/tmp/proxysh.sock"
-	ConfigFileName   = ".proxysh.yaml"
+	IPCSocketPath    = "/tmp/devtun.sock"
+	ConfigFileName   = ".devtun.yaml"
 )
 
 func DefaultConfigDir() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".config", "proxysh")
+	return filepath.Join(home, ".config", "devtun")
 }
 
 func DefaultCADir() string {
@@ -25,14 +25,14 @@ func DefaultCertDir() string {
 }
 
 func DefaultLogFile() string {
-	return filepath.Join(DefaultConfigDir(), "proxysh.log")
+	return filepath.Join(DefaultConfigDir(), "devtun.log")
 }
 
 func DefaultPIDFile() string {
-	return filepath.Join(DefaultConfigDir(), "proxysh.pid")
+	return filepath.Join(DefaultConfigDir(), "devtun.pid")
 }
 
 func DefaultLaunchAgentPlist() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "Library", "LaunchAgents", "com.PuvaanRaaj.proxysh.plist")
+	return filepath.Join(home, "Library", "LaunchAgents", "com.PuvaanRaaj.devtun.plist")
 }

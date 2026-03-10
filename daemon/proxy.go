@@ -8,7 +8,7 @@ import (
 	"net/http/httputil"
 	"time"
 
-	proxylog "github.com/PuvaanRaaj/proxysh/log"
+	tunlog "github.com/PuvaanRaaj/devtun/log"
 )
 
 // Handler returns an http.Handler that reverse-proxies to the correct upstream
@@ -21,7 +21,7 @@ func Handler(router *Router) http.Handler {
 			return
 		}
 
-		proxylog.Info("proxy", "method", r.Method, "host", r.Host, "path", r.URL.Path)
+		tunlog.Info("proxy", "method", r.Method, "host", r.Host, "path", r.URL.Path)
 
 		if isWebSocketUpgrade(r) {
 			proxyWebSocket(w, r, target.Host)
@@ -38,11 +38,11 @@ func Handler(router *Router) http.Handler {
 				}
 			},
 			ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
-				proxylog.Error("upstream error", "err", err, "host", r.Host)
+				tunlog.Error("upstream error", "err", err, "host", r.Host)
 				http.Error(w, "upstream unavailable: "+err.Error(), http.StatusBadGateway)
 			},
 			ModifyResponse: func(resp *http.Response) error {
-				resp.Header.Set("X-Proxied-By", "proxysh")
+				resp.Header.Set("X-Proxied-By", "devtun")
 				return nil
 			},
 		}

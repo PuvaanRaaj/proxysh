@@ -5,26 +5,26 @@ import (
 	"net"
 	"os"
 
-	"github.com/PuvaanRaaj/proxysh/config"
-	"github.com/PuvaanRaaj/proxysh/ipc"
-	proxylog "github.com/PuvaanRaaj/proxysh/log"
+	"github.com/PuvaanRaaj/devtun/config"
+	"github.com/PuvaanRaaj/devtun/ipc"
+	tunlog "github.com/PuvaanRaaj/devtun/log"
 )
 
 // ServeIPC listens on a Unix socket and handles CLI → daemon commands.
 func ServeIPC(socketPath string, router *Router, cfgPath string, shutdown chan<- struct{}) {
 	os.Remove(socketPath)
 	if err := os.MkdirAll(parentDir(socketPath), 0755); err != nil {
-		proxylog.Error("ipc mkdir", "err", err)
+		tunlog.Error("ipc mkdir", "err", err)
 		return
 	}
 
 	ln, err := net.Listen("unix", socketPath)
 	if err != nil {
-		proxylog.Error("ipc listen", "err", err)
+		tunlog.Error("ipc listen", "err", err)
 		return
 	}
 	defer ln.Close()
-	proxylog.Info("ipc listening", "socket", socketPath)
+	tunlog.Info("ipc listening", "socket", socketPath)
 
 	for {
 		conn, err := ln.Accept()
@@ -56,7 +56,7 @@ func handleIPCConn(conn net.Conn, router *Router, cfgPath string, shutdown chan<
 			enc.Encode(&ipc.Response{OK: false, Error: err.Error()}) //nolint:errcheck
 			return
 		}
-		proxylog.Info("config reloaded")
+		tunlog.Info("config reloaded")
 		enc.Encode(&ipc.Response{OK: true}) //nolint:errcheck
 
 	case ipc.CmdStatus:
